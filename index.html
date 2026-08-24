@@ -30,6 +30,8 @@
             --discord-color: #5865F2;
             --youtube-color: #ff0033;
             --twitter-color: #1d9bf0;
+            --status-current: #34d399;
+            --status-past: #9ba0aa;
             --transition-smooth: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -364,6 +366,8 @@
         .discord-port-info { margin-top: 34px; margin-bottom: 18px; }
         .discord-port-name { font-size: 1.22rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+        .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+
         .role-badge {
             display: inline-block;
             font-size: 0.72rem;
@@ -375,7 +379,40 @@
             border: 1px solid rgba(244,242,236,0.3);
             padding: 4px 12px;
             border-radius: 30px;
-            margin-bottom: 12px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 30px;
+        }
+        .status-badge .status-dot-small {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .status-badge.status-current {
+            color: var(--status-current);
+            background: rgba(52, 211, 153, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.35);
+        }
+        .status-badge.status-current .status-dot-small {
+            background: var(--status-current);
+            box-shadow: 0 0 6px var(--status-current);
+        }
+        .status-badge.status-past {
+            color: var(--status-past);
+            background: rgba(155, 160, 170, 0.1);
+            border: 1px solid rgba(155, 160, 170, 0.3);
+        }
+        .status-badge.status-past .status-dot-small {
+            background: var(--status-past);
         }
 
         .discord-port-stats { display: flex; align-items: center; gap: 16px; font-size: 0.85rem; color: var(--text-sub); font-weight: 500; margin-bottom: 20px; }
@@ -686,7 +723,7 @@
         <section class="page-wrapper container">
             <div class="section-header">
                 <h2 class="section-title">Works</h2>
-                <p class="section-subtitle">Projects I currently work in, along with my role in each. only from 2026 I don't planned to put the olders.</p>
+                <p class="section-subtitle">Projects I currently work in or worked in, along with my role in each. only from 2026 I don't planned to put the olders.</p>
             </div>
             <div id="works-discord-grid" class="grid"></div>
         </section>
@@ -737,16 +774,17 @@
             discordId: "1185337098602041354"
         };
 
+        // "status" = "current" or "past" — controls the new badge shown next to the role badge.
         const workServers = [
-            { invite: "https://discord.gg/Rc3QZcupQz", role: "Admin" },
-            { invite: "https://discord.gg/6DrHbHZHEw", role: "Content Creator Manager" },
-            { invite: "https://discord.gg/ZhkpaR8dZu", role: "Contributor" },
-            { invite: "https://discord.gg/pTmG7PAynz", role: "Concept Team" },
-            { invite: "https://discord.gg/epeurtFED", role: "Content Creator Support" },
-            { invite: "https://discord.gg/6TDU6zTeTv", role: "Tester" },
-            { invite: "https://discord.gg/TPDnCZGcvF", role: "Tester" },
-            { invite: "https://discord.gg/DYSfBhu7gA", role: "Tester" },
-            { invite: "https://discord.gg/wM6PRv44T5", role: "Admin" }
+            { invite: "https://discord.gg/Rc3QZcupQz", role: "Admin", status: "current" },
+            { invite: "https://discord.gg/6DrHbHZHEw", role: "CC Manager", status: "current" },
+            { invite: "https://discord.gg/ZhkpaR8dZu", role: "Contributor", status: "current" },
+            { invite: "https://discord.gg/pTmG7PAynz", role: "Concept Team", status: "current" },
+            { invite: "https://discord.gg/epeurtFED", role: "CC Support", status: "current" },
+            { invite: "https://discord.gg/6TDU6zTeTv", role: "Tester", status: "current" },
+            { invite: "https://discord.gg/TPDnCZGcvF", role: "Tester", status: "past" },
+            { invite: "https://discord.gg/DYSfBhu7gA", role: "Tester", status: "current" },
+            { invite: "https://discord.gg/wM6PRv44T5", role: "Admin", status: "current" }
         ];
 
         const socials = [
@@ -886,13 +924,20 @@
                     console.log('Could not fetch live data for invite', inviteCode, err);
                 }
 
+                const isPast = server.status === 'past';
+                const statusLabel = isPast ? 'Past Position' : 'Current Position';
+                const statusClass = isPast ? 'status-past' : 'status-current';
+
                 card.innerHTML = `
                     <div class="discord-port-banner" style="${bannerStyle}"></div>
                     <div class="discord-port-body">
                         <img class="discord-port-icon" src="${iconUrl}" alt="${name}">
                         <div class="discord-port-info">
                             <h3 class="discord-port-name" title="${name}">${name}</h3>
-                            <span class="role-badge">${server.role}</span>
+                            <div class="badge-row">
+                                <span class="role-badge">${server.role}</span>
+                                <span class="status-badge ${statusClass}"><span class="status-dot-small"></span>${statusLabel}</span>
+                            </div>
                             <div class="discord-port-stats">
                                 <span><span class="status-dot dot-online"></span>${onlineCount} Online</span>
                                 <span><span class="status-dot dot-members"></span>${totalCount} Members</span>
