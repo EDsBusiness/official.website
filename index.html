@@ -1092,14 +1092,8 @@
 
         document.querySelectorAll('.quick-card').forEach(attachTiltEffect);
 
-        // Background music. Starts right when the loading screen finishes
-        // (see the 'load' listener below), not before — that's the moment
-        // the visitor actually sees the site. Most browsers still block
-        // autoplay-with-sound without a prior click, so if that first
-        // attempt is blocked, playback kicks in on the visitor's very next
-        // click/tap/keypress anywhere on the page instead. The button always
-        // lets them pause or resume manually afterwards.
-        let startBackgroundMusic = () => {};
+        // Background music toggle. Starts paused — browsers block autoplay
+        // with sound, so it only plays after the visitor clicks the button.
         function initBackgroundMusic() {
             const musicBtn = document.getElementById('musicToggle');
             const bgMusic = document.getElementById('bgMusic');
@@ -1107,46 +1101,18 @@
 
             let isPlaying = false;
 
-            function markPlaying() {
-                isPlaying = true;
-                musicBtn.classList.add('playing');
-            }
-
-            function markPaused() {
-                isPlaying = false;
-                musicBtn.classList.remove('playing');
-            }
-
-            function attemptAutoplay() {
-                // Browsers always allow autoplay when muted, but block it
-                // outright when it starts with sound. So: start muted (which
-                // succeeds), then unmute right after — browsers generally
-                // allow that follow-up unmute even without a prior click.
-                bgMusic.muted = true;
-                bgMusic.play()
-                    .then(() => {
-                        bgMusic.muted = false;
-                        markPlaying();
-                    })
-                    .catch(() => {
-                        const startOnInteraction = () => {
-                            bgMusic.muted = false;
-                            bgMusic.play().then(markPlaying).catch(() => {});
-                        };
-                        ['click', 'touchstart', 'keydown'].forEach(evt =>
-                            document.addEventListener(evt, startOnInteraction, { once: true })
-                        );
-                    });
-            }
-
-            startBackgroundMusic = attemptAutoplay;
-
             musicBtn.addEventListener('click', () => {
                 if (isPlaying) {
                     bgMusic.pause();
-                    markPaused();
+                    isPlaying = false;
+                    musicBtn.classList.remove('playing');
                 } else {
-                    bgMusic.play().then(markPlaying).catch(err => console.log('Could not play background music', err));
+                    bgMusic.play()
+                        .then(() => {
+                            isPlaying = true;
+                            musicBtn.classList.add('playing');
+                        })
+                        .catch(err => console.log('Could not play background music', err));
                 }
             });
         }
@@ -1167,10 +1133,7 @@
             if (!loadingScreen) return;
             const elapsed = performance.now() - pageLoadStart;
             const remaining = Math.max(LOADING_SCREEN_MIN_MS - elapsed, 0);
-            setTimeout(() => {
-                loadingScreen.classList.add('loaded');
-                startBackgroundMusic();
-            }, remaining);
+            setTimeout(() => loadingScreen.classList.add('loaded'), remaining);
         });
     </script>
 </body>
