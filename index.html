@@ -1092,11 +1092,14 @@
 
         document.querySelectorAll('.quick-card').forEach(attachTiltEffect);
 
-        // Background music. Tries to autoplay with sound as soon as the page
-        // loads. Most browsers block that without a prior user interaction,
-        // so if it fails, playback starts automatically on the visitor's
-        // first click/tap/keypress anywhere on the page instead. The button
-        // always lets them pause or resume manually afterwards.
+        // Background music. Starts right when the loading screen finishes
+        // (see the 'load' listener below), not before — that's the moment
+        // the visitor actually sees the site. Most browsers still block
+        // autoplay-with-sound without a prior click, so if that first
+        // attempt is blocked, playback kicks in on the visitor's very next
+        // click/tap/keypress anywhere on the page instead. The button always
+        // lets them pause or resume manually afterwards.
+        let startBackgroundMusic = () => {};
         function initBackgroundMusic() {
             const musicBtn = document.getElementById('musicToggle');
             const bgMusic = document.getElementById('bgMusic');
@@ -1127,7 +1130,7 @@
                     });
             }
 
-            attemptAutoplay();
+            startBackgroundMusic = attemptAutoplay;
 
             musicBtn.addEventListener('click', () => {
                 if (isPlaying) {
@@ -1155,7 +1158,10 @@
             if (!loadingScreen) return;
             const elapsed = performance.now() - pageLoadStart;
             const remaining = Math.max(LOADING_SCREEN_MIN_MS - elapsed, 0);
-            setTimeout(() => loadingScreen.classList.add('loaded'), remaining);
+            setTimeout(() => {
+                loadingScreen.classList.add('loaded');
+                startBackgroundMusic();
+            }, remaining);
         });
     </script>
 </body>
