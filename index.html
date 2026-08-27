@@ -1092,8 +1092,11 @@
 
         document.querySelectorAll('.quick-card').forEach(attachTiltEffect);
 
-        // Background music toggle. Starts paused — browsers block autoplay
-        // with sound, so it only plays after the visitor clicks the button.
+        // Background music. Tries to autoplay with sound as soon as the page
+        // loads. Most browsers block that without a prior user interaction,
+        // so if it fails, playback starts automatically on the visitor's
+        // first click/tap/keypress anywhere on the page instead. The button
+        // always lets them pause or resume manually afterwards.
         function initBackgroundMusic() {
             const musicBtn = document.getElementById('musicToggle');
             const bgMusic = document.getElementById('bgMusic');
@@ -1101,18 +1104,37 @@
 
             let isPlaying = false;
 
+            function markPlaying() {
+                isPlaying = true;
+                musicBtn.classList.add('playing');
+            }
+
+            function markPaused() {
+                isPlaying = false;
+                musicBtn.classList.remove('playing');
+            }
+
+            function attemptAutoplay() {
+                bgMusic.play()
+                    .then(markPlaying)
+                    .catch(() => {
+                        const startOnInteraction = () => {
+                            bgMusic.play().then(markPlaying).catch(() => {});
+                        };
+                        ['click', 'touchstart', 'keydown'].forEach(evt =>
+                            document.addEventListener(evt, startOnInteraction, { once: true })
+                        );
+                    });
+            }
+
+            attemptAutoplay();
+
             musicBtn.addEventListener('click', () => {
                 if (isPlaying) {
                     bgMusic.pause();
-                    isPlaying = false;
-                    musicBtn.classList.remove('playing');
+                    markPaused();
                 } else {
-                    bgMusic.play()
-                        .then(() => {
-                            isPlaying = true;
-                            musicBtn.classList.add('playing');
-                        })
-                        .catch(err => console.log('Could not play background music', err));
+                    bgMusic.play().then(markPlaying).catch(err => console.log('Could not play background music', err));
                 }
             });
         }
