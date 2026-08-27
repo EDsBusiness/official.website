@@ -1118,10 +1118,19 @@
             }
 
             function attemptAutoplay() {
+                // Browsers always allow autoplay when muted, but block it
+                // outright when it starts with sound. So: start muted (which
+                // succeeds), then unmute right after — browsers generally
+                // allow that follow-up unmute even without a prior click.
+                bgMusic.muted = true;
                 bgMusic.play()
-                    .then(markPlaying)
+                    .then(() => {
+                        bgMusic.muted = false;
+                        markPlaying();
+                    })
                     .catch(() => {
                         const startOnInteraction = () => {
+                            bgMusic.muted = false;
                             bgMusic.play().then(markPlaying).catch(() => {});
                         };
                         ['click', 'touchstart', 'keydown'].forEach(evt =>
