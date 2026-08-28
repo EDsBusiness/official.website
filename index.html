@@ -632,7 +632,6 @@
             *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
         }
 
-        /* Background music toggle button */
         .music-toggle-btn {
             position: fixed;
             bottom: 24px;
@@ -671,7 +670,6 @@
         }
         .music-toggle-btn.playing svg { fill: var(--status-current); }
 
-        /* Role description modal */
         .role-modal-overlay {
             position: fixed;
             inset: 0;
@@ -780,9 +778,6 @@
         <div class="loader-text">Loading</div>
     </div>
 
-    <!-- Background music: audio only, sourced from a video file (backgroundMusic.mp4).
-         Hidden visually, loops, starts muted/paused because browsers block
-         autoplay-with-sound. Toggle with the floating button bottom-right. -->
     <video id="bgMusic" loop preload="auto" playsinline style="display:none;">
         <source src="backgroundMusic.mp4" type="video/mp4">
     </video>
@@ -791,7 +786,6 @@
         <svg class="icon-playing" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
     </button>
 
-    <!-- Role description modal: opens when a role pill on Home is clicked -->
     <div class="role-modal-overlay" id="roleModalOverlay">
         <div class="role-modal" role="dialog" aria-modal="true">
             <button class="role-modal-close" id="roleModalClose" type="button" aria-label="Close">&times;</button>
@@ -825,13 +819,12 @@
         </nav>
     </header>
 
-    <!-- ================= HOME ================= -->
     <div id="page-home" class="page active-page">
         <section class="hero">
             <div class="container">
                 <span class="eyebrow">Roblox &middot; Content &middot; Community</span>
                 <h1>ED's Business</h1>
-                <p class="lede">welcome in my official website, for the moment I'm not for hire but depending on why I'm hired and on the projects as a payment I can take in game stuff, Robux and Revenue Share (5-10%) click on the roles below to see my pricing</p>
+                <p class="lede">welcome in my official website, for the moment I'm not for hire but depending on why I'm hired and on the projects as a payment I can take in game stuff, Robux and Revenue Share (5-10%) you can click on the roles below to see my pricing</p>
 
                 <div class="role-deck" id="roleDeck"></div>
 
@@ -866,7 +859,6 @@
         </section>
     </div>
 
-    <!-- ================= WORKS ================= -->
     <div id="page-works" class="page">
         <section class="page-wrapper container">
             <div class="section-header">
@@ -877,7 +869,6 @@
         </section>
     </div>
 
-    <!-- ================= SOCIALS ================= -->
     <div id="page-socials" class="page">
         <section class="page-wrapper container">
             <div class="section-header">
@@ -888,7 +879,6 @@
         </section>
     </div>
 
-    <!-- ================= TEAMS ================= -->
     <div id="page-teams" class="page">
         <section class="page-wrapper container">
             <div class="section-header">
@@ -906,11 +896,6 @@
     </footer>
 
     <script>
-        // Each role now has a "title" (shown as the pill and modal heading)
-        // and a "description" (shown inside the modal when the pill is
-        // clicked). Fill in the description text for each role you want to
-        // detail — leave it as an empty string ("") if you don't have one
-        // yet, the modal will just show the title with no text under it.
         const roles = [
             { title: "QA Manager", description: "Pricing : 10K Robux per month or 7% of game's revenue. (Note : I will provide an organized workspace where devs and testers can work together to improve games.)" },
             { title: "Tester", description: "Pricing : It's Free ofc but I accept in game rewards too" },
@@ -928,7 +913,6 @@
             discordId: "1185337098602041354"
         };
 
-        // "status" = "current" or "past" — controls the new badge shown next to the role badge.
         const workServers = [
             { invite: "https://discord.gg/Rc3QZcupQz", role: "Admin", status: "current" },
             { invite: "https://discord.gg/6DrHbHZHEw", role: "CC Manager", status: "current" },
@@ -1002,7 +986,6 @@
             });
         }
 
-        // Role modal: shows the clicked role's title + description.
         function openRoleModal(role) {
             const overlay = document.getElementById('roleModalOverlay');
             const titleEl = document.getElementById('roleModalTitle');
@@ -1029,12 +1012,10 @@
 
             closeBtn.addEventListener('click', closeRoleModal);
 
-            // Click outside the modal card closes it
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) closeRoleModal();
             });
 
-            // Escape key closes it
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') closeRoleModal();
             });
@@ -1234,13 +1215,6 @@
 
         document.querySelectorAll('.quick-card').forEach(attachTiltEffect);
 
-        // Background music. Starts right when the loading screen finishes
-        // (see the 'load' listener below), not before — that's the moment
-        // the visitor actually sees the site. Most browsers still block
-        // autoplay-with-sound without a prior click, so if that first
-        // attempt is blocked, playback kicks in on the visitor's very next
-        // click/tap/keypress anywhere on the page instead. The button always
-        // lets them pause or resume manually afterwards.
         let startBackgroundMusic = () => {};
         function initBackgroundMusic() {
             const musicBtn = document.getElementById('musicToggle');
