@@ -811,10 +811,10 @@
 
     <script>
         const roles = [
-            "Jack of All Trades",
-            "Roblox Game Tester",
+            "QA Manager",
+            "Tester",
+            "Community Manager",
             "Content Creator Manager",
-            "Game Contributor",
             "Discord Bots Maker"
         ];
 
@@ -836,7 +836,8 @@
             { invite: "https://discord.gg/6TDU6zTeTv", role: "Tester", status: "current" },
             { invite: "https://discord.gg/TPDnCZGcvF", role: "Tester", status: "past" },
             { invite: "https://discord.gg/DYSfBhu7gA", role: "Tester", status: "current" },
-            { invite: "https://discord.gg/wM6PRv44T5", role: "Admin", status: "current" }
+            { invite: "https://discord.gg/wM6PRv44T5", role: "Admin", status: "current" },
+            { invite: "https://discord.gg/ejtQtmVHtZ", role: "Tester", status: "current" }
         ];
 
         const socials = [
@@ -1092,8 +1093,14 @@
 
         document.querySelectorAll('.quick-card').forEach(attachTiltEffect);
 
-        // Background music toggle. Starts paused — browsers block autoplay
-        // with sound, so it only plays after the visitor clicks the button.
+        // Background music. Starts right when the loading screen finishes
+        // (see the 'load' listener below), not before — that's the moment
+        // the visitor actually sees the site. Most browsers still block
+        // autoplay-with-sound without a prior click, so if that first
+        // attempt is blocked, playback kicks in on the visitor's very next
+        // click/tap/keypress anywhere on the page instead. The button always
+        // lets them pause or resume manually afterwards.
+        let startBackgroundMusic = () => {};
         function initBackgroundMusic() {
             const musicBtn = document.getElementById('musicToggle');
             const bgMusic = document.getElementById('bgMusic');
@@ -1101,18 +1108,38 @@
 
             let isPlaying = false;
 
+            function markPlaying() {
+                isPlaying = true;
+                musicBtn.classList.add('playing');
+            }
+
+            function markPaused() {
+                isPlaying = false;
+                musicBtn.classList.remove('playing');
+            }
+
+            function attemptAutoplay() {
+                // Browsers reliably block autoplay-with-sound without a
+                // prior interaction — so instead of fighting that, we just
+                // start playback on the visitor's very first click/tap/
+                // keypress after the loading screen ends. The button always
+                // reflects the true state.
+                const startOnInteraction = () => {
+                    bgMusic.play().then(markPlaying).catch(() => {});
+                };
+                ['click', 'touchstart', 'keydown'].forEach(evt =>
+                    document.addEventListener(evt, startOnInteraction, { once: true })
+                );
+            }
+
+            startBackgroundMusic = attemptAutoplay;
+
             musicBtn.addEventListener('click', () => {
                 if (isPlaying) {
                     bgMusic.pause();
-                    isPlaying = false;
-                    musicBtn.classList.remove('playing');
+                    markPaused();
                 } else {
-                    bgMusic.play()
-                        .then(() => {
-                            isPlaying = true;
-                            musicBtn.classList.add('playing');
-                        })
-                        .catch(err => console.log('Could not play background music', err));
+                    bgMusic.play().then(markPlaying).catch(err => console.log('Could not play background music', err));
                 }
             });
         }
@@ -1133,7 +1160,10 @@
             if (!loadingScreen) return;
             const elapsed = performance.now() - pageLoadStart;
             const remaining = Math.max(LOADING_SCREEN_MIN_MS - elapsed, 0);
-            setTimeout(() => loadingScreen.classList.add('loaded'), remaining);
+            setTimeout(() => {
+                loadingScreen.classList.add('loaded');
+                startBackgroundMusic();
+            }, remaining);
         });
     </script>
 </body>
