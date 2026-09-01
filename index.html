@@ -143,28 +143,6 @@
             border: 1px solid var(--border-glow);
         }
 
-        .visit-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: rgba(244, 242, 236, 0.08);
-            border: 1px solid var(--border-glow);
-            border-radius: 100px;
-            padding: 5px 11px;
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--text-sub);
-            letter-spacing: 0.3px;
-            text-transform: none;
-            margin-left: 4px;
-        }
-        .visit-badge svg {
-            width: 13px;
-            height: 13px;
-            fill: var(--text-sub);
-            flex-shrink: 0;
-        }
-
         .nav-links { display: flex; list-style: none; gap: 4px; }
         .nav-links a {
             color: var(--text-sub);
@@ -787,7 +765,6 @@
             .music-toggle-btn svg { width: 19px; height: 19px; }
             .role-modal { padding: 26px; }
             .role-modal-title { font-size: 1.35rem; }
-            .visit-badge { font-size: 0.68rem; padding: 4px 9px; }
         }
     </style>
 </head>
@@ -832,10 +809,6 @@
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
                 <span class="logo-icon" style="display:none;"></span>
                 ED's Business
-                <span class="visit-badge" id="visitBadge" style="display:none;">
-                    <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 7.61 17 4.5 12 4.5zm0 12.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
-                    <span id="visitBadgeCount">—</span>
-                </span>
             </div>
             <ul class="nav-links">
                 <li><a id="nav-home" class="active-nav" onclick="switchPage('home')">Home</a></li>
@@ -851,7 +824,7 @@
             <div class="container">
                 <span class="eyebrow">Roblox &middot; Content &middot; Community</span>
                 <h1>ED's Business</h1>
-                <p class="lede">welcome in my official website, for the moment I'm not for hire but depending on why I'm hired and on the projects as a payment I can take in game stuff, Robux and Revenue Share (5-10%) </p>
+                <p class="lede">welcome in my official website, for the moment I'm not for hire but depending on why I'm hired and on the projects as a payment I can take in game stuff, Robux and Revenue Share (5-10%) to see my pricing you can click on the roles below and they will be visible</p>
 
                 <div class="role-deck" id="roleDeck"></div>
 
@@ -928,8 +901,8 @@
             { title: "Tester", description: "Pricing : It's Free ofc but I accept in game rewards too" },
             { title: "Community Manager", description: "Pricing : 15K Robux per month or 5% of game's revenue. (Note : I can do all the server setup, categories, channels, roles, permissions, bots config, logs system, ticket system and I'm learning AutoMod and Server Security.)" },
             { title: "Content Creator Manager", description: "I need more experience for the moment" },
-            { title: "Discord Bots Maker", description: "Pricing : 50K to 75K depending on the difficulty. to be paid 50% upfront. (Note : either you bring me in the discord server to add the bot and you give me contributor role. either i just give you the files.)" },
-            { title: "Website Maker", description: "Pricing : 50K to 75K depending on the difficulty. to be paid 50% upfront. (Note : I don't buy domains, I just do the files you need, and I show you the things you can change at anytime.)" }
+            { title: "Discord Bots Maker", description: "Pricing : 50K to 75K Robux depending on the difficulty. to be paid 50% upfront. (Note : either you bring me in the discord server to add the bot and you give me contributor role. either i just give you the files.)" },
+            { title: "Website Maker", description: "Pricing : 50K to 75K Robux depending on the difficulty. to be paid 50% upfront. (Note : I don't buy domains, I just do the files you need, and I show you the things you can change at anytime.)" }
         ];
 
         const profile = {
@@ -1281,31 +1254,6 @@
             });
         }
 
-        const VISIT_COUNT_OFFSET = 721;
-
-        function formatVisitCount(n) {
-            if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-            if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-            return n.toString();
-        }
-
-        async function trackVisit() {
-            const badge = document.getElementById('visitBadge');
-            const countEl = document.getElementById('visitBadgeCount');
-            if (!badge || !countEl) return;
-
-            try {
-                const response = await fetch('https://abacus.jasoncameron.dev/hit/eds-business-com/site-visits');
-                if (!response.ok) return;
-                const data = await response.json();
-                const total = (data.value || 0) + VISIT_COUNT_OFFSET;
-                countEl.textContent = formatVisitCount(total);
-                badge.style.display = 'inline-flex';
-            } catch (err) {
-                console.log('Could not update visit count', err);
-            }
-        }
-
         window.addEventListener('DOMContentLoaded', () => {
             renderRoleDeck();
             renderProfile();
@@ -1314,7 +1262,6 @@
             renderTeams();
             initBackgroundMusic();
             initRoleModal();
-            trackVisit();
         });
 
         const LOADING_SCREEN_MIN_MS = 3000;
