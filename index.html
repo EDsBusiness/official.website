@@ -33,6 +33,7 @@
             --status-current: #34d399;
             --status-past: #9ba0aa;
             --transition-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease: cubic-bezier(.22,1,.36,1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -551,83 +552,192 @@
             z-index: 9999;
             background: var(--bg-deep);
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 22px;
-            transition: opacity 0.5s var(--transition-smooth), visibility 0.5s var(--transition-smooth);
-        }
-        #loadingScreen.loaded {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .loader-logo {
-            width: 84px;
-            height: 84px;
-            border-radius: 20px;
-            object-fit: cover;
-            background: rgba(244, 242, 236, 0.06);
-            border: 1px solid var(--border-glow);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            animation: loaderPulse 1.6s ease-in-out infinite;
-        }
-
-        .loader-mark {
-            width: 46px;
-            height: 46px;
-            border-radius: 12px;
-            background: rgba(244, 242, 236, 0.06);
-            border: 1px solid var(--border-glow);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: loaderPulse 1.6s ease-in-out infinite;
-        }
-        .loader-mark span {
-            width: 10px; height: 10px;
-            background: var(--text-main);
-            border-radius: 2px;
-            transform: rotate(45deg);
-        }
-        @keyframes loaderPulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.12); opacity: 0.6; }
-        }
-
-        .loader-text {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.82rem;
-            font-weight: 600;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--text-sub);
-        }
-
-        .loader-bar {
-            width: 160px;
-            height: 2px;
-            background: rgba(244, 242, 236, 0.12);
-            border-radius: 2px;
             overflow: hidden;
         }
-        .loader-bar-fill {
-            width: 40%;
-            height: 100%;
-            background: var(--text-main);
-            border-radius: 2px;
-            animation: loaderBar 1.3s ease-in-out infinite;
+        #loadingScreen.done { visibility: hidden; pointer-events: none; transition: visibility 0s linear 1.7s; }
+
+        .ld-door {
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 50.3%;
+            z-index: 0;
+            transition: transform 1.15s cubic-bezier(.77,0,.18,1) .35s;
         }
-        @keyframes loaderBar {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(350%); }
+        .ld-left {
+            left: 0;
+            background:
+                radial-gradient(ellipse 110% 70% at 100% 50%, rgba(244,242,236,0.10), transparent 62%),
+                linear-gradient(115deg, transparent 60%, rgba(244,242,236,0.04) 66%, transparent 72%),
+                linear-gradient(180deg, var(--bg-deep-2), var(--bg-deep));
+            box-shadow: inset -1px 0 0 rgba(244,242,236,0.35), inset -12px 0 30px -18px rgba(244,242,236,0.3);
+        }
+        .ld-right {
+            right: 0;
+            background:
+                radial-gradient(ellipse 110% 70% at 0% 50%, rgba(244,242,236,0.10), transparent 62%),
+                linear-gradient(115deg, transparent 20%, rgba(244,242,236,0.04) 26%, transparent 32%),
+                linear-gradient(180deg, var(--bg-deep-2), var(--bg-deep));
+            box-shadow: inset 1px 0 0 rgba(244,242,236,0.35), inset 12px 0 30px -18px rgba(244,242,236,0.3);
+        }
+        #loadingScreen.done .ld-left { transform: translateX(-101%); }
+        #loadingScreen.done .ld-right { transform: translateX(101%); }
+
+        .ld-flash {
+            position: absolute; left: 50%; top: 50%;
+            width: 10px; height: 10px; border-radius: 50%;
+            z-index: 1; pointer-events: none; opacity: 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(244,242,236,0.35) 40%, transparent 70%);
+            transform: translate(-50%, -50%) scale(0);
+        }
+        #loadingScreen.done .ld-flash { animation: ldflash 0.9s ease-out; }
+        @keyframes ldflash {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(90); opacity: 0; }
+        }
+
+        .ld-stage {
+            position: relative; z-index: 2;
+            display: flex; flex-direction: column; align-items: center; gap: 22px;
+            transition: opacity 0.5s ease, transform 0.8s var(--ease), filter 0.5s ease;
+        }
+        #loadingScreen.done .ld-stage { opacity: 0; transform: scale(1.18); filter: blur(6px); }
+
+        .ld-emblem {
+            position: relative;
+            width: min(150px, 40vw);
+            aspect-ratio: 1;
+            display: flex; align-items: center; justify-content: center;
+            animation: ldfloat 4s ease-in-out infinite;
+        }
+        @keyframes ldfloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+
+        .ld-ring { position: absolute; inset: 0; border-radius: 50%; }
+        .ld-ring.r1 {
+            background: conic-gradient(from 0deg, transparent 0 50%, rgba(244,242,236,0.06) 50%, var(--text-main) 100%);
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+            animation: ldspin 2.2s linear infinite;
+            filter: drop-shadow(0 0 6px rgba(244,242,236,0.7));
+        }
+        .ld-ring.r2 {
+            inset: 6%;
+            background: repeating-conic-gradient(rgba(244,242,236,0.5) 0 2deg, transparent 2deg 10deg);
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+            animation: ldspin 14s linear infinite reverse;
+            opacity: 0.7;
+        }
+        .ld-ring.r3 { inset: -9%; border: 1px solid rgba(244,242,236,0.14); }
+        @keyframes ldspin { to { transform: rotate(360deg); } }
+
+        .ld-logo {
+            position: relative; z-index: 2;
+            width: 46%; height: 46%;
+            border-radius: 18px;
+            object-fit: cover;
+            background: rgba(244,242,236,0.06);
+            border: 1px solid var(--border-glow);
+            box-shadow: 0 0 20px rgba(244,242,236,0.25);
+        }
+        .ld-mark {
+            position: relative; z-index: 2;
+            width: 46%; height: 46%;
+            border-radius: 18px;
+            background: rgba(244,242,236,0.06);
+            border: 1px solid var(--border-glow);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ld-mark span { width: 22%; height: 22%; background: var(--text-main); border-radius: 2px; transform: rotate(45deg); }
+
+        .ld-spark {
+            position: absolute;
+            width: var(--s); height: var(--s);
+            z-index: 3; opacity: 0;
+            background: radial-gradient(circle, #ffffff 0%, var(--text-main) 40%, var(--text-sub) 100%);
+            clip-path: polygon(50% 0%, 57% 43%, 100% 50%, 57% 57%, 50% 100%, 43% 57%, 0% 50%, 43% 43%);
+            animation: ldspark 2.4s ease-in-out infinite;
+            animation-delay: var(--dl, 0s);
+        }
+        @keyframes ldspark {
+            0%, 100% { opacity: 0; transform: scale(0.2) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1) rotate(45deg); }
+        }
+
+        .ld-title {
+            display: flex;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: clamp(20px, 5vw, 27px);
+            letter-spacing: 0.3em;
+            margin-right: -0.3em;
+        }
+        .ld-title span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(14px);
+            background: linear-gradient(180deg, #ffffff 0%, #d9dade 40%, #9ba0aa 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: ldrise 0.8s var(--ease) forwards;
+            animation-delay: calc(0.5s + var(--i) * 70ms);
+        }
+        .ld-title .gap { width: 0.32em; }
+        @keyframes ldrise { to { opacity: 1; transform: translateY(0); } }
+
+        .ld-sub {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 10.5px;
+            letter-spacing: 0.5em;
+            margin-right: -0.5em;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            margin-top: -10px;
+            opacity: 0;
+            animation: ldrise 0.8s var(--ease) forwards 1.1s;
+        }
+
+        .ld-tube {
+            width: min(240px, 60vw);
+            height: 4px;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(244,242,236,0.08);
+            border: 1px solid var(--border-glow);
+        }
+        .ld-fill {
+            height: 100%; width: 0%;
+            border-radius: 4px;
+            position: relative;
+            background: linear-gradient(90deg, rgba(244,242,236,0.5), var(--text-main));
+            box-shadow: 0 0 12px rgba(244,242,236,0.5);
+            transition: width 0.12s linear;
+        }
+        .ld-fill::after {
+            content: '';
+            position: absolute; inset: 0; border-radius: inherit;
+            background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.65) 50%, transparent 70%);
+            background-size: 200% 100%;
+            animation: ldsheen 1.2s linear infinite;
+        }
+        @keyframes ldsheen { from { background-position: 200% 0; } to { background-position: -100% 0; } }
+
+        .ld-pct {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 12px;
+            color: var(--text-sub);
+            letter-spacing: 0.14em;
+            font-variant-numeric: tabular-nums;
+            margin-top: -8px;
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .loader-mark, .loader-bar-fill, .loader-logo { animation: none; }
+            .ld-emblem, .ld-ring, .ld-spark, .ld-fill::after { animation: none !important; }
+            .ld-title span, .ld-sub { opacity: 1; transform: none; animation: none; }
         }
-
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
         }
@@ -771,11 +881,29 @@
 <body>
 
     <div id="loadingScreen">
-        <img class="loader-logo" id="loaderLogo" src="logo.png" alt="Logo"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-        <div class="loader-mark" style="display:none;"><span></span></div>
-        <div class="loader-bar"><div class="loader-bar-fill"></div></div>
-        <div class="loader-text">Loading</div>
+        <div class="ld-door ld-left"></div>
+        <div class="ld-door ld-right"></div>
+        <div class="ld-flash"></div>
+        <div class="ld-stage">
+            <div class="ld-emblem">
+                <div class="ld-ring r3"></div>
+                <div class="ld-ring r2"></div>
+                <div class="ld-ring r1"></div>
+                <img class="ld-logo" id="loaderLogo" src="logo.png" alt="Logo"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="ld-mark" style="display:none;"><span></span></div>
+                <span class="ld-spark" style="--s:14px;top:-2%;left:80%;--dl:.2s"></span>
+                <span class="ld-spark" style="--s:10px;top:70%;left:-6%;--dl:.9s"></span>
+                <span class="ld-spark" style="--s:11px;top:12%;left:-4%;--dl:1.5s"></span>
+                <span class="ld-spark" style="--s:8px;top:88%;left:84%;--dl:.5s"></span>
+            </div>
+            <div class="ld-title" aria-label="ED's Business">
+                <span style="--i:0">E</span><span style="--i:1">D</span><span style="--i:2">'</span><span style="--i:3">S</span><span class="gap" style="--i:4"></span><span style="--i:5">B</span><span style="--i:6">U</span><span style="--i:7">S</span><span style="--i:8">I</span><span style="--i:9">N</span><span style="--i:10">E</span><span style="--i:11">S</span><span style="--i:12">S</span>
+            </div>
+            <div class="ld-sub">Official Website</div>
+            <div class="ld-tube"><div class="ld-fill" id="ldFill"></div></div>
+            <div class="ld-pct" id="loaderPct">0%</div>
+        </div>
     </div>
 
     <video id="bgMusic" loop preload="auto" playsinline style="display:none;">
@@ -1264,18 +1392,46 @@
             initRoleModal();
         });
 
-        const LOADING_SCREEN_MIN_MS = 3000;
-        const pageLoadStart = performance.now();
-        window.addEventListener('load', () => {
-            const loadingScreen = document.getElementById('loadingScreen');
-            if (!loadingScreen) return;
-            const elapsed = performance.now() - pageLoadStart;
-            const remaining = Math.max(LOADING_SCREEN_MIN_MS - elapsed, 0);
-            setTimeout(() => {
-                loadingScreen.classList.add('loaded');
-                startBackgroundMusic();
-            }, remaining);
-        });
+        (function () {
+            const loader = document.getElementById('loadingScreen');
+            const pct = document.getElementById('loaderPct');
+            const fill = document.getElementById('ldFill');
+            if (!loader || !pct || !fill) return;
+
+            let n = 0;
+            let loaded = document.readyState === 'complete';
+            let minDone = false;
+            let finished = false;
+
+            function setP(v) {
+                pct.textContent = Math.floor(v) + '%';
+                fill.style.width = v + '%';
+            }
+
+            window.addEventListener('load', () => { loaded = true; });
+            setTimeout(() => { minDone = true; }, 2600);
+
+            function finish() {
+                if (finished) return;
+                finished = true;
+                setTimeout(() => {
+                    loader.classList.add('done');
+                    startBackgroundMusic();
+                }, 450);
+            }
+
+            const iv = setInterval(() => {
+                const cap = (loaded && minDone) ? 100 : 92;
+                if (n < cap) {
+                    n = Math.min(cap, n + Math.random() * 4.5 + 1.2);
+                    setP(n);
+                }
+                if (n >= 100) {
+                    clearInterval(iv);
+                    finish();
+                }
+            }, 70);
+        })();
     </script>
 </body>
 </html>
